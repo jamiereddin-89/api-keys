@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 export interface ApiKey {
   id: string;
   label: string;
+  username: string;
   key: string;
   createdAt: number;
 }
@@ -58,10 +59,11 @@ export const usePuterStorage = () => {
   }, []);
 
   const addKey = useCallback(
-    async (label: string, key: string) => {
+    async (label: string, username: string, key: string) => {
       const newKey: ApiKey = {
         id: Date.now().toString(),
         label,
+        username: username || "MISC",
         key,
         createdAt: Date.now(),
       };
@@ -72,8 +74,10 @@ export const usePuterStorage = () => {
   );
 
   const updateKey = useCallback(
-    async (id: string, label: string, key: string) => {
-      const updated = keys.map((k) => (k.id === id ? { ...k, label, key } : k));
+    async (id: string, label: string, username: string, key: string) => {
+      const updated = keys.map((k) =>
+        k.id === id ? { ...k, label, username: username || "MISC", key } : k,
+      );
       return saveKeys(updated);
     },
     [keys, saveKeys],
@@ -102,7 +106,7 @@ export const usePuterStorage = () => {
   const parseTextFormat = (text: string): ApiKey[] => {
     const lines = text.split("\n");
     const parsed: ApiKey[] = [];
-    let currentKey: { label?: string; key?: string } = {};
+    let currentKey: { label?: string; username?: string; key?: string } = {};
 
     for (const line of lines) {
       const trimmed = line.trim();
@@ -114,6 +118,7 @@ export const usePuterStorage = () => {
           parsed.push({
             id: Date.now().toString() + Math.random(),
             label: currentKey.label,
+            username: currentKey.username || "MISC",
             key: currentKey.key,
             createdAt: Date.now(),
           });
@@ -137,9 +142,13 @@ export const usePuterStorage = () => {
         if (value) currentKey.key = value;
       }
 
-      // Parse USERNAME=value (for reference, not used as label)
+      // Parse USERNAME=value
       if (trimmed.startsWith("USERNAME=")) {
-        // Can enhance label if needed
+        const value = trimmed
+          .replace("USERNAME=", "")
+          .replace(/,+$/, "")
+          .trim();
+        if (value) currentKey.username = value;
       }
     }
 
@@ -148,6 +157,7 @@ export const usePuterStorage = () => {
       parsed.push({
         id: Date.now().toString() + Math.random(),
         label: currentKey.label,
+        username: currentKey.username || "MISC",
         key: currentKey.key,
         createdAt: Date.now(),
       });
@@ -199,9 +209,13 @@ export const usePuterStorage = () => {
           }
         }
 
-        // Merge with existing keys, avoiding duplicates by label
-        const existingLabels = new Set(keys.map((k) => k.label));
-        const newKeys = imported.filter((k) => !existingLabels.has(k.label));
+        // Merge with existing keys, avoiding duplicates by label+username combination
+        const existingKeys = new Set(
+          keys.map((k) => `${k.label}||${k.username}`),
+        );
+        const newKeys = imported.filter(
+          (k) => !existingKeys.has(`${k.label}||${k.username || "MISC"}`),
+        );
 
         if (newKeys.length === 0) {
           throw new Error(
@@ -214,6 +228,7 @@ export const usePuterStorage = () => {
           ...newKeys.map((k) => ({
             ...k,
             id: k.id || Date.now().toString(),
+            username: k.username || "MISC",
             createdAt: k.createdAt || Date.now(),
           })),
         ];
