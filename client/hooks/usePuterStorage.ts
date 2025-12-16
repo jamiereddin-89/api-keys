@@ -210,7 +210,9 @@ export const usePuterStorage = () => {
         }
 
         // Merge with existing keys, avoiding duplicates by label+username combination
-        const existingKeys = new Set(keys.map((k) => `${k.label}||${k.username}`));
+        const existingKeys = new Set(
+          keys.map((k) => `${k.label}||${k.username}`),
+        );
         const newKeys = imported.filter(
           (k) => !existingKeys.has(`${k.label}||${k.username || "MISC"}`),
         );

@@ -260,10 +260,15 @@ export default function ApiKeyManager() {
     });
 
     return Array.from(groups.entries())
-      .map(([provider, usernames]) => [
-        provider,
-        Array.from(usernames.entries()).sort((a, b) => a[0].localeCompare(b[0])),
-      ] as [string, [string, ApiKey[]][]])
+      .map(
+        ([provider, usernames]) =>
+          [
+            provider,
+            Array.from(usernames.entries()).sort((a, b) =>
+              a[0].localeCompare(b[0]),
+            ),
+          ] as [string, [string, ApiKey[]][]],
+      )
       .sort((a, b) => a[0].localeCompare(b[0]));
   }, [keys]);
 
@@ -428,7 +433,8 @@ export default function ApiKeyManager() {
           </div>
 
           <p className="text-xs text-slate-400">
-            💡 Supports JSON format or text files with PROVIDER=..., USERNAME=..., KEY=... format
+            💡 Supports JSON format or text files with PROVIDER=...,
+            USERNAME=..., KEY=... format
           </p>
         </div>
 
@@ -446,159 +452,182 @@ export default function ApiKeyManager() {
             </div>
           ) : (
             <div className="border border-slate-700 rounded-xl overflow-hidden bg-slate-800/50">
-              {groupedKeys.map(([providerName, usernameGroups], providerIndex) => (
-                <div
-                  key={providerName}
-                  className={
-                    providerIndex !== groupedKeys.length - 1
-                      ? "border-b border-slate-700"
-                      : ""
-                  }
-                >
-                  {/* Provider Header */}
-                  <button
-                    onClick={() => toggleExpandProvider(providerName)}
-                    className="w-full px-6 py-4 bg-slate-800/50 hover:bg-slate-800/70 transition flex items-center justify-between text-white group"
+              {groupedKeys.map(
+                ([providerName, usernameGroups], providerIndex) => (
+                  <div
+                    key={providerName}
+                    className={
+                      providerIndex !== groupedKeys.length - 1
+                        ? "border-b border-slate-700"
+                        : ""
+                    }
                   >
-                    <div className="flex items-center gap-3 flex-1 text-left">
-                      <h3 className="text-lg font-semibold text-white">
-                        {providerName}
-                      </h3>
-                      <span className="text-sm text-slate-400">
-                        ({usernameGroups.reduce((sum, [, keys]) => sum + keys.length, 0)} key
-                        {usernameGroups.reduce((sum, [, keys]) => sum + keys.length, 0) !== 1 ? "s" : ""})
-                      </span>
-                    </div>
-                    <ChevronDown
-                      className={`w-5 h-5 text-slate-400 transition-transform ${
-                        expandedProviders.has(providerName) ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+                    {/* Provider Header */}
+                    <button
+                      onClick={() => toggleExpandProvider(providerName)}
+                      className="w-full px-6 py-4 bg-slate-800/50 hover:bg-slate-800/70 transition flex items-center justify-between text-white group"
+                    >
+                      <div className="flex items-center gap-3 flex-1 text-left">
+                        <h3 className="text-lg font-semibold text-white">
+                          {providerName}
+                        </h3>
+                        <span className="text-sm text-slate-400">
+                          (
+                          {usernameGroups.reduce(
+                            (sum, [, keys]) => sum + keys.length,
+                            0,
+                          )}{" "}
+                          key
+                          {usernameGroups.reduce(
+                            (sum, [, keys]) => sum + keys.length,
+                            0,
+                          ) !== 1
+                            ? "s"
+                            : ""}
+                          )
+                        </span>
+                      </div>
+                      <ChevronDown
+                        className={`w-5 h-5 text-slate-400 transition-transform ${
+                          expandedProviders.has(providerName)
+                            ? "rotate-180"
+                            : ""
+                        }`}
+                      />
+                    </button>
 
-                  {/* Username Groups */}
-                  {expandedProviders.has(providerName) && (
-                    <div className="px-6 py-4 bg-slate-900/30 space-y-4">
-                      {usernameGroups.map(([usernameName, apiKeys], usernameIndex) => (
-                        <div key={`${providerName}||${usernameName}`}>
-                          {/* Username Header */}
-                          <button
-                            onClick={() =>
-                              toggleExpandUsername(
+                    {/* Username Groups */}
+                    {expandedProviders.has(providerName) && (
+                      <div className="px-6 py-4 bg-slate-900/30 space-y-4">
+                        {usernameGroups.map(
+                          ([usernameName, apiKeys], usernameIndex) => (
+                            <div key={`${providerName}||${usernameName}`}>
+                              {/* Username Header */}
+                              <button
+                                onClick={() =>
+                                  toggleExpandUsername(
+                                    `${providerName}||${usernameName}`,
+                                  )
+                                }
+                                className="w-full px-4 py-2 bg-slate-800/30 hover:bg-slate-800/50 transition flex items-center justify-between text-white rounded-lg mb-2"
+                              >
+                                <div className="flex items-center gap-2 flex-1 text-left">
+                                  <h4 className="text-sm font-medium text-slate-200">
+                                    {usernameName}
+                                  </h4>
+                                  <span className="text-xs text-slate-500">
+                                    ({apiKeys.length} key
+                                    {apiKeys.length !== 1 ? "s" : ""})
+                                  </span>
+                                </div>
+                                <ChevronDown
+                                  className={`w-4 h-4 text-slate-400 transition-transform ${
+                                    expandedUsernames.has(
+                                      `${providerName}||${usernameName}`,
+                                    )
+                                      ? "rotate-180"
+                                      : ""
+                                  }`}
+                                />
+                              </button>
+
+                              {/* API Keys */}
+                              {expandedUsernames.has(
                                 `${providerName}||${usernameName}`,
-                              )
-                            }
-                            className="w-full px-4 py-2 bg-slate-800/30 hover:bg-slate-800/50 transition flex items-center justify-between text-white rounded-lg mb-2"
-                          >
-                            <div className="flex items-center gap-2 flex-1 text-left">
-                              <h4 className="text-sm font-medium text-slate-200">
-                                {usernameName}
-                              </h4>
-                              <span className="text-xs text-slate-500">
-                                ({apiKeys.length} key{apiKeys.length !== 1 ? "s" : ""})
-                              </span>
-                            </div>
-                            <ChevronDown
-                              className={`w-4 h-4 text-slate-400 transition-transform ${
-                                expandedUsernames.has(
-                                  `${providerName}||${usernameName}`,
-                                )
-                                  ? "rotate-180"
-                                  : ""
-                              }`}
-                            />
-                          </button>
-
-                          {/* API Keys */}
-                          {expandedUsernames.has(`${providerName}||${usernameName}`) && (
-                            <div className="space-y-3">
-                              {apiKeys.map((apiKey) => (
-                                <div
-                                  key={apiKey.id}
-                                  className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:border-slate-600 transition"
-                                >
-                                  <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1 min-w-0">
-                                      <div className="space-y-2 mb-2">
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-xs text-slate-400 min-w-fit">
-                                            Key:
-                                          </span>
-                                          <code className="bg-slate-900/50 text-slate-300 px-3 py-2 rounded text-sm break-all font-mono flex-1">
-                                            {revealedKeys.has(apiKey.id)
-                                              ? apiKey.key
-                                              : "•".repeat(
-                                                  Math.min(apiKey.key.length, 40),
+                              ) && (
+                                <div className="space-y-3">
+                                  {apiKeys.map((apiKey) => (
+                                    <div
+                                      key={apiKey.id}
+                                      className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 hover:border-slate-600 transition"
+                                    >
+                                      <div className="flex items-start justify-between gap-4">
+                                        <div className="flex-1 min-w-0">
+                                          <div className="space-y-2 mb-2">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs text-slate-400 min-w-fit">
+                                                Key:
+                                              </span>
+                                              <code className="bg-slate-900/50 text-slate-300 px-3 py-2 rounded text-sm break-all font-mono flex-1">
+                                                {revealedKeys.has(apiKey.id)
+                                                  ? apiKey.key
+                                                  : "•".repeat(
+                                                      Math.min(
+                                                        apiKey.key.length,
+                                                        40,
+                                                      ),
+                                                    )}
+                                              </code>
+                                              <button
+                                                onClick={() =>
+                                                  toggleReveal(apiKey.id)
+                                                }
+                                                className="p-2 hover:bg-slate-700 rounded transition flex-shrink-0"
+                                                title={
+                                                  revealedKeys.has(apiKey.id)
+                                                    ? "Hide"
+                                                    : "Reveal"
+                                                }
+                                              >
+                                                {revealedKeys.has(apiKey.id) ? (
+                                                  <EyeOff className="w-4 h-4 text-slate-400" />
+                                                ) : (
+                                                  <Eye className="w-4 h-4 text-slate-400" />
                                                 )}
-                                          </code>
+                                              </button>
+                                              <button
+                                                onClick={() =>
+                                                  copyToClipboard(
+                                                    apiKey.key,
+                                                    apiKey.label,
+                                                  )
+                                                }
+                                                className="p-2 hover:bg-slate-700 rounded transition flex-shrink-0"
+                                                title="Copy to clipboard"
+                                              >
+                                                <Copy className="w-4 h-4 text-slate-400" />
+                                              </button>
+                                            </div>
+                                          </div>
+                                          <p className="text-xs text-slate-500">
+                                            Added{" "}
+                                            {new Date(
+                                              apiKey.createdAt,
+                                            ).toLocaleDateString()}
+                                          </p>
+                                        </div>
+
+                                        <div className="flex gap-2 flex-shrink-0">
                                           <button
-                                            onClick={() =>
-                                              toggleReveal(apiKey.id)
-                                            }
-                                            className="p-2 hover:bg-slate-700 rounded transition flex-shrink-0"
-                                            title={
-                                              revealedKeys.has(apiKey.id)
-                                                ? "Hide"
-                                                : "Reveal"
-                                            }
+                                            onClick={() => handleEdit(apiKey)}
+                                            className="p-2 hover:bg-slate-700 rounded transition"
+                                            title="Edit key"
                                           >
-                                            {revealedKeys.has(apiKey.id) ? (
-                                              <EyeOff className="w-4 h-4 text-slate-400" />
-                                            ) : (
-                                              <Eye className="w-4 h-4 text-slate-400" />
-                                            )}
+                                            <Edit2 className="w-4 h-4 text-blue-400" />
                                           </button>
                                           <button
                                             onClick={() =>
-                                              copyToClipboard(
-                                                apiKey.key,
-                                                apiKey.label,
-                                              )
+                                              handleDeleteKey(apiKey.id)
                                             }
-                                            className="p-2 hover:bg-slate-700 rounded transition flex-shrink-0"
-                                            title="Copy to clipboard"
+                                            className="p-2 hover:bg-slate-700 rounded transition"
+                                            title="Delete key"
                                           >
-                                            <Copy className="w-4 h-4 text-slate-400" />
+                                            <Trash2 className="w-4 h-4 text-red-400" />
                                           </button>
                                         </div>
                                       </div>
-                                      <p className="text-xs text-slate-500">
-                                        Added{" "}
-                                        {new Date(
-                                          apiKey.createdAt,
-                                        ).toLocaleDateString()}
-                                      </p>
                                     </div>
-
-                                    <div className="flex gap-2 flex-shrink-0">
-                                      <button
-                                        onClick={() => handleEdit(apiKey)}
-                                        className="p-2 hover:bg-slate-700 rounded transition"
-                                        title="Edit key"
-                                      >
-                                        <Edit2 className="w-4 h-4 text-blue-400" />
-                                      </button>
-                                      <button
-                                        onClick={() =>
-                                          handleDeleteKey(apiKey.id)
-                                        }
-                                        className="p-2 hover:bg-slate-700 rounded transition"
-                                        title="Delete key"
-                                      >
-                                        <Trash2 className="w-4 h-4 text-red-400" />
-                                      </button>
-                                    </div>
-                                  </div>
+                                  ))}
                                 </div>
-                              ))}
+                              )}
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           )}
         </div>
