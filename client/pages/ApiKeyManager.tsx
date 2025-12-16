@@ -271,6 +271,79 @@ export default function ApiKeyManager() {
     }
   };
 
+  const handleFetchFromKV = async () => {
+    setFetchFromKvLoading(true);
+    setFetchFromKvMessage(null);
+
+    try {
+      const puter = (window as any).puter;
+      if (!puter || !puter.kv) {
+        throw new Error("Puter KV not available");
+      }
+
+      const data = await puter.kv.get("api_keys");
+      if (!data) {
+        throw new Error("No saved keys found in Puter KV Store");
+      }
+
+      const fetchedKeys: ApiKey[] = JSON.parse(data);
+      if (!Array.isArray(fetchedKeys)) {
+        throw new Error("Invalid data format in KV Store");
+      }
+
+      // Merge with existing keys, avoiding duplicates by provider+username combination
+      const existingKeys = new Set(keys.map((k) => `${k.label}||${k.username}`));
+      const newKeysToAdd = fetchedKeys.filter(
+        (k) => !existingKeys.has(`${k.label}||${k.username}`),
+      );
+
+      if (newKeysToAdd.length === 0) {
+        setFetchFromKvMessage({
+          type: "success",
+          text: "All keys from KV Store are already in the app (no duplicates added)",
+        });
+        toast.info("All keys already exist");
+        return;
+      }
+
+      // Save the merged keys
+      const merged = [...keys, ...newKeysToAdd];
+      const success = await addKey(
+        newKeysToAdd[0].label,
+        newKeysToAdd[0].username,
+        newKeysToAdd[0].key,
+      );
+
+      if (success) {
+        // If first key was added, add the rest
+        for (let i = 1; i < newKeysToAdd.length; i++) {
+          await addKey(
+            newKeysToAdd[i].label,
+            newKeysToAdd[i].username,
+            newKeysToAdd[i].key,
+          );
+        }
+
+        setFetchFromKvMessage({
+          type: "success",
+          text: `Successfully fetched and added ${newKeysToAdd.length} API key(s) from Puter KV Store`,
+        });
+        toast.success(`Fetched ${newKeysToAdd.length} keys from KV Store`);
+      } else {
+        throw new Error("Failed to add keys from KV Store");
+      }
+    } catch (err) {
+      const errorMsg = (err as Error).message;
+      setFetchFromKvMessage({
+        type: "error",
+        text: `Failed to fetch from KV: ${errorMsg}`,
+      });
+      toast.error(`Failed to fetch: ${errorMsg}`);
+    } finally {
+      setFetchFromKvLoading(false);
+    }
+  };
+
   // Group keys by provider, then by username
   const groupedKeys = useMemo(() => {
     const groups = new Map<string, Map<string, ApiKey[]>>();
