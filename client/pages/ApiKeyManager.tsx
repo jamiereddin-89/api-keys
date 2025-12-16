@@ -338,7 +338,10 @@ export default function ApiKeyManager() {
                 <PopoverContent className="w-40 p-0 border border-slate-700 bg-slate-800">
                   <div className="p-3">
                     <p className="text-xs text-slate-400 mb-3">
-                      Signed in as <span className="text-white font-medium">{puterUser.username}</span>
+                      Signed in as{" "}
+                      <span className="text-white font-medium">
+                        {puterUser.username}
+                      </span>
                     </p>
                     <Button
                       onClick={handleSignOut}
