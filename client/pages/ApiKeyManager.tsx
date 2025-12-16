@@ -67,7 +67,7 @@ export default function ApiKeyManager() {
       try {
         const puter = (window as any).puter;
         if (puter && puter.auth) {
-          const user = await puter.auth.get_user();
+          const user = await puter.auth.getUser();
           setPuterUser(user);
         }
       } catch (err) {
@@ -81,7 +81,8 @@ export default function ApiKeyManager() {
     try {
       const puter = (window as any).puter;
       if (puter && puter.auth) {
-        const user = await puter.auth.authenticate();
+        await puter.auth.signIn();
+        const user = await puter.auth.getUser();
         setPuterUser(user);
         toast.success(`Signed in as ${user?.username || "User"}`);
       }
