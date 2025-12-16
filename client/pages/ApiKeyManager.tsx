@@ -57,6 +57,7 @@ export default function ApiKeyManager() {
   );
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [saveToKvLoading, setSaveToKvLoading] = useState(false);
   const [saveToKvMessage, setSaveToKvMessage] = useState<{
     type: "success" | "error";
