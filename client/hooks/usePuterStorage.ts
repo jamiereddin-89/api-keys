@@ -209,9 +209,11 @@ export const usePuterStorage = () => {
           }
         }
 
-        // Merge with existing keys, avoiding duplicates by label
-        const existingLabels = new Set(keys.map((k) => k.label));
-        const newKeys = imported.filter((k) => !existingLabels.has(k.label));
+        // Merge with existing keys, avoiding duplicates by label+username combination
+        const existingKeys = new Set(keys.map((k) => `${k.label}||${k.username}`));
+        const newKeys = imported.filter(
+          (k) => !existingKeys.has(`${k.label}||${k.username || "MISC"}`),
+        );
 
         if (newKeys.length === 0) {
           throw new Error(
@@ -224,6 +226,7 @@ export const usePuterStorage = () => {
           ...newKeys.map((k) => ({
             ...k,
             id: k.id || Date.now().toString(),
+            username: k.username || "MISC",
             createdAt: k.createdAt || Date.now(),
           })),
         ];
