@@ -455,8 +455,7 @@ export default function ApiKeyManager() {
 
             <Button
               onClick={handleImportClick}
-              variant="outline"
-              className="text-white border-slate-700 hover:bg-slate-800"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white border-0"
             >
               <Upload className="w-4 h-4 mr-2" />
               Import Keys
