@@ -329,11 +329,27 @@ export default function ApiKeyManager() {
 
           <div className="flex items-center gap-4">
             {puterUser ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-slate-300">
-                  {puterUser.username || "Signed in"}
-                </span>
-              </div>
+              <Popover open={showUserMenu} onOpenChange={setShowUserMenu}>
+                <PopoverTrigger asChild>
+                  <button className="text-sm text-slate-300 hover:text-white transition cursor-pointer">
+                    {puterUser.username || "Signed in"}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-40 p-0 border border-slate-700 bg-slate-800">
+                  <div className="p-3">
+                    <p className="text-xs text-slate-400 mb-3">
+                      Signed in as <span className="text-white font-medium">{puterUser.username}</span>
+                    </p>
+                    <Button
+                      onClick={handleSignOut}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white border-0 text-sm flex items-center justify-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             ) : (
               <Button
                 onClick={handlePuterSignIn}
