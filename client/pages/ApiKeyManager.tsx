@@ -291,6 +291,10 @@ export default function ApiKeyManager() {
         throw new Error("Invalid data format in KV Store");
       }
 
+      if (fetchedKeys.length === 0) {
+        throw new Error("No keys found in Puter KV Store");
+      }
+
       // Merge with existing keys, avoiding duplicates by provider+username combination
       const existingKeys = new Set(keys.map((k) => `${k.label}||${k.username}`));
       const newKeysToAdd = fetchedKeys.filter(
@@ -306,29 +310,25 @@ export default function ApiKeyManager() {
         return;
       }
 
-      // Save the merged keys
-      const merged = [...keys, ...newKeysToAdd];
-      const success = await addKey(
-        newKeysToAdd[0].label,
-        newKeysToAdd[0].username,
-        newKeysToAdd[0].key,
-      );
-
-      if (success) {
-        // If first key was added, add the rest
-        for (let i = 1; i < newKeysToAdd.length; i++) {
-          await addKey(
-            newKeysToAdd[i].label,
-            newKeysToAdd[i].username,
-            newKeysToAdd[i].key,
-          );
+      // Add each new key
+      let addedCount = 0;
+      for (const keyToAdd of newKeysToAdd) {
+        const success = await addKey(
+          keyToAdd.label,
+          keyToAdd.username,
+          keyToAdd.key,
+        );
+        if (success) {
+          addedCount++;
         }
+      }
 
+      if (addedCount > 0) {
         setFetchFromKvMessage({
           type: "success",
-          text: `Successfully fetched and added ${newKeysToAdd.length} API key(s) from Puter KV Store`,
+          text: `Successfully fetched and added ${addedCount} API key(s) from Puter KV Store`,
         });
-        toast.success(`Fetched ${newKeysToAdd.length} keys from KV Store`);
+        toast.success(`Fetched ${addedCount} keys from KV Store`);
       } else {
         throw new Error("Failed to add keys from KV Store");
       }
