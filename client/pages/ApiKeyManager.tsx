@@ -10,6 +10,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Eye,
   EyeOff,
   Copy,
@@ -22,6 +27,7 @@ import {
   X,
   ChevronDown,
   Settings,
+  LogOut,
 } from "lucide-react";
 import { toast } from "sonner";
 
