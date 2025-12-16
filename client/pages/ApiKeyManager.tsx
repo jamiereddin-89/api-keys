@@ -296,7 +296,9 @@ export default function ApiKeyManager() {
       }
 
       // Merge with existing keys, avoiding duplicates by provider+username combination
-      const existingKeys = new Set(keys.map((k) => `${k.label}||${k.username}`));
+      const existingKeys = new Set(
+        keys.map((k) => `${k.label}||${k.username}`),
+      );
       const newKeysToAdd = fetchedKeys.filter(
         (k) => !existingKeys.has(`${k.label}||${k.username}`),
       );
