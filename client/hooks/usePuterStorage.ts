@@ -59,10 +59,11 @@ export const usePuterStorage = () => {
   }, []);
 
   const addKey = useCallback(
-    async (label: string, key: string) => {
+    async (label: string, username: string, key: string) => {
       const newKey: ApiKey = {
         id: Date.now().toString(),
         label,
+        username: username || "MISC",
         key,
         createdAt: Date.now(),
       };
@@ -73,8 +74,10 @@ export const usePuterStorage = () => {
   );
 
   const updateKey = useCallback(
-    async (id: string, label: string, key: string) => {
-      const updated = keys.map((k) => (k.id === id ? { ...k, label, key } : k));
+    async (id: string, label: string, username: string, key: string) => {
+      const updated = keys.map((k) =>
+        k.id === id ? { ...k, label, username: username || "MISC", key } : k,
+      );
       return saveKeys(updated);
     },
     [keys, saveKeys],
