@@ -106,7 +106,7 @@ export const usePuterStorage = () => {
   const parseTextFormat = (text: string): ApiKey[] => {
     const lines = text.split("\n");
     const parsed: ApiKey[] = [];
-    let currentKey: { label?: string; key?: string } = {};
+    let currentKey: { label?: string; username?: string; key?: string } = {};
 
     for (const line of lines) {
       const trimmed = line.trim();
@@ -118,6 +118,7 @@ export const usePuterStorage = () => {
           parsed.push({
             id: Date.now().toString() + Math.random(),
             label: currentKey.label,
+            username: currentKey.username || "MISC",
             key: currentKey.key,
             createdAt: Date.now(),
           });
@@ -141,9 +142,13 @@ export const usePuterStorage = () => {
         if (value) currentKey.key = value;
       }
 
-      // Parse USERNAME=value (for reference, not used as label)
+      // Parse USERNAME=value
       if (trimmed.startsWith("USERNAME=")) {
-        // Can enhance label if needed
+        const value = trimmed
+          .replace("USERNAME=", "")
+          .replace(/,+$/, "")
+          .trim();
+        if (value) currentKey.username = value;
       }
     }
 
@@ -152,6 +157,7 @@ export const usePuterStorage = () => {
       parsed.push({
         id: Date.now().toString() + Math.random(),
         label: currentKey.label,
+        username: currentKey.username || "MISC",
         key: currentKey.key,
         createdAt: Date.now(),
       });
