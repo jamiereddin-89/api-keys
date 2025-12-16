@@ -861,6 +861,28 @@ export default function ApiKeyManager() {
                   No keys to save yet.
                 </p>
               )}
+
+              <div className="mt-4 pt-4 border-t border-slate-700">
+                <Button
+                  onClick={handleFetchFromKV}
+                  disabled={fetchFromKvLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {fetchFromKvLoading ? "Fetching..." : "Fetch KV API Keys"}
+                </Button>
+              </div>
+
+              {fetchFromKvMessage && (
+                <div
+                  className={`mt-4 p-3 rounded-lg text-sm ${
+                    fetchFromKvMessage.type === "success"
+                      ? "bg-green-500/10 border border-green-500/20 text-green-400"
+                      : "bg-red-500/10 border border-red-500/20 text-red-400"
+                  }`}
+                >
+                  {fetchFromKvMessage.text}
+                </div>
+              )}
             </div>
           </div>
 
