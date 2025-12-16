@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 export interface ApiKey {
   id: string;
   label: string;
+  username: string;
   key: string;
   createdAt: number;
 }
