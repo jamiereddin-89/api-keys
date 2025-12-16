@@ -99,6 +99,21 @@ export default function ApiKeyManager() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      const puter = (window as any).puter;
+      if (puter && puter.auth) {
+        await puter.auth.signOut();
+        setPuterUser(null);
+        setShowUserMenu(false);
+        toast.success("Signed out successfully");
+      }
+    } catch (err) {
+      console.error("Sign out error:", err);
+      toast.error("Failed to sign out");
+    }
+  };
+
   const toggleReveal = (id: string) => {
     const newRevealed = new Set(revealedKeys);
     if (newRevealed.has(id)) {
